@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %} · Sign up{% endblock %}
+{% block content %}
+<section class="panel panel-auth">
+  <h1>Create an account</h1>
+  <p class="muted">Use your campus email so others can reach you.</p>
+  <form method="post" action="{{ url_for('register') }}">
+    <div class="field">
+      <label class="label" for="username">Username</label>
+      <input class="input" id="username" name="username" type="text" autocomplete="username" minlength="3" maxlength="30" required value="{{ form.get('username', '') }}">
+    </div>
+    <div class="field">
+      <label class="label" for="email">Email</label>
+      <input class="input" id="email" name="email" type="email" autocomplete="email" required value="{{ form.get('email', '') }}">
+    </div>
+    <div class="field">
+      <label class="label" for="password">Password</label>
+      <input class="input" id="password" name="password" type="password" autocomplete="new-password" minlength="8" required>
+      <small class="hint">At least 8 characters.</small>
+    </div>
+    <div class="field">
+      <label class="label" for="confirm_password">Confirm password</label>
+      <input class="input" id="confirm_password" name="confirm_password" type="password" autocomplete="new-password" minlength="8" required>
+    </div>
+    <button type="submit" class="btn btn-primary btn-block">Create account</button>
+  </form>
+  <p class="muted center">Already registered? <a href="{{ url_for('login') }}">Log in</a></p>
+</section>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% macro badge(value) -%}
+<span class="badge badge-{{ value }}">{{ value|capitalize }}</span>
+{%- endmacro %}
+
+{% macro item_form(form, submit_label, show_status=false) %}
+<div class="form-grid">
+  <fieldset class="field field-full">
+    <legend class="label">Type</legend>
+    <div class="segmented">
+      {% for t in ITEM_TYPES %}
+        <label class="segment segment-{{ t }}">
+          <input type="radio" name="item_type" value="{{ t }}" {% if form.get('item_type', 'lost') == t %}checked{% endif %} required>
+          <span>I {{ t }} something</span>
+        </label>
+      {% endfor %}
+    </div>
+  </fieldset>
+  <div class="field field-full">
+    <label class="label" for="title">Title</label>
+    <input class="input" id="title" name="title" type="text" minlength="3" maxlength="100" required
+           placeholder="e.g. Blue Hydro Flask water bottle" value="{{ form.get('title', '') }}">
+  </div>
+  <div class="field">
+    <label class="label" for="category">Category</label>
+    <select class="input" id="category" name="category" required>
+      <option value="">Select a category</option>
+      {% for c in CATEGORIES %}
+        <option value="{{ c }}" {% if form.get('category') == c %}selected{% endif %}>{{ c|capitalize }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="field">
+    <label class="label" for="item_date">Date lost / found</label>
+    <input class="input" id="item_date" name="item_date" type="date" max="{{ today }}" required value="{{ form.get('item_date', '') }}">
+  </div>
+  <div class="field field-full">
+    <label class="label" for="location">Location</label>
+    <input class="input" id="location" name="location" type="text" minlength="2" maxlength="150" required
+           placeholder="e.g. Library, 2nd floor study area" value="{{ form.get('location', '') }}">
+  </div>
+  <div class="field field-full">
+    <label class="label" for="description">Description</label>
+    <textarea class="input" id="description" name="description" rows="5" minlength="10" maxlength="1000" required
+              data-counter="desc-count" placeholder="Colour, brand, distinguishing marks…">{{ form.get('description', '') }}</textarea>
+    <small class="hint"><span id="desc-count">0</span> / 1000 characters</small>
+  </div>
+  <div class="field">
+    <label class="label" for="contact_email">Contact email</label>
+    <input class="input" id="contact_email" name="contact_email" type="email" required value="{{ form.get('contact_email', '') }}">
+  </div>
+  <div class="field">
+    <label class="label" for="image_url">Image URL <span class="optional">(optional)</span></label>
+    <input class="input" id="image_url" name="image_url" type="url" maxlength="500" placeholder="https://…" value="{{ form.get('image_url') or '' }}">
+  </div>
+  {% if show_status %}
+  <div class="field">
+    <label class="label" for="status">Status</label>
+    <select class="input" id="status" name="status">
+      {% for s in STATUSES %}
+        <option value="{{ s }}" {% if form.get('status') == s %}selected{% endif %}>{{ s|capitalize }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  {% endif %}
+</div>
+<div class="form-actions">
+  <button type="submit" class="btn btn-primary">{{ submit_label }}</button>
+</div>
+{% endmacro %}

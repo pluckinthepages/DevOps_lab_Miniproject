@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% from "_macros.html" import item_form %}
+{% block title %} · Edit item{% endblock %}
+{% block content %}
+<section class="panel panel-narrow">
+  <a href="{{ url_for('item_detail', item_id=item.id) }}" class="back-link">&larr; Back to item</a>
+  <h1>Edit item</h1>
+  <form method="post" action="{{ url_for('edit_item', item_id=item.id) }}" novalidate>
+    {{ item_form(form, "Save changes", show_status=true) }}
+  </form>
+</section>
+{% endblock %}

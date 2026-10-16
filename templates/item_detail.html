@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% from "_macros.html" import badge %}
+{% block title %} · {{ item.title }}{% endblock %}
+{% block content %}
+<a href="{{ url_for('index') }}" class="back-link">&larr; Back to board</a>
+<article class="detail">
+  <div class="detail-media card-media-{{ item.category }}">
+    {% if item.image_url %}<img src="{{ item.image_url }}" alt="Photo of {{ item.title }}" referrerpolicy="no-referrer">{% else %}<span class="card-initial">{{ item.category[0]|upper }}</span>{% endif %}
+  </div>
+  <div class="detail-body">
+    <div class="badges">{{ badge(item.item_type) }}{{ badge(item.status) }}<span class="badge badge-neutral">{{ item.category|capitalize }}</span></div>
+    <h1>{{ item.title }}</h1>
+    <p class="detail-desc">{{ item.description }}</p>
+    <dl class="meta-list">
+      <div><dt>Location</dt><dd>{{ item.location }}</dd></div>
+      <div><dt>Date {{ item.item_type }}</dt><dd>{{ item.item_date }}</dd></div>
+      <div><dt>Reported by</dt><dd>{{ item.owner_name or 'Unknown' }}</dd></div>
+      <div><dt>Contact</dt><dd><a href="mailto:{{ item.contact_email }}?subject=CampusFind: {{ item.title|urlencode }}">{{ item.contact_email }}</a></dd></div>
+      <div><dt>Posted</dt><dd>{{ item.created_at }} UTC</dd></div>
+    </dl>
+    {% if not is_owner %}
+      <a class="btn btn-primary" href="mailto:{{ item.contact_email }}?subject=CampusFind: {{ item.title|urlencode }}">Contact {{ 'finder' if item.item_type == 'found' else 'owner' }}</a>
+    {% endif %}
+
+    {% if is_owner %}
+    <div class="owner-panel">
+      <h2>Manage your listing</h2>
+      <form method="post" action="{{ url_for('update_status', item_id=item.id) }}" class="status-form">
+        <label for="status" class="label">Status</label>
+        <select id="status" name="status" class="input">
+          {% for s in STATUSES %}<option value="{{ s }}" {% if item.status == s %}selected{% endif %}>{{ s|capitalize }}</option>{% endfor %}
+        </select>
+        <button type="submit" class="btn btn-ghost">Update status</button>
+      </form>
+      <div class="owner-actions">
+        <a href="{{ url_for('edit_item', item_id=item.id) }}" class="btn btn-ghost">Edit</a>
+        <form method="post" action="{{ url_for('delete_item', item_id=item.id) }}" data-confirm="Delete this listing permanently?">
+          <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</article>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% from "_macros.html" import badge %}
+{% block content %}
+<section class="hero">
+  <div>
+    <h1>CampusFind</h1>
+    <p class="lead">Lost something on campus? Found something that isn't yours? Post it here and help it get home.</p>
+  </div>
+  <a href="{{ url_for('new_item') }}" class="btn btn-primary btn-lg">Report an item</a>
+</section>
+
+<section class="stats" aria-label="Statistics">
+  <div class="stat"><span class="stat-value" id="stat-total">{{ stats.total }}</span><span class="stat-label">Total reports</span></div>
+  <div class="stat stat-lost"><span class="stat-value" id="stat-lost">{{ stats.lost }}</span><span class="stat-label">Lost</span></div>
+  <div class="stat stat-found"><span class="stat-value" id="stat-found">{{ stats.found }}</span><span class="stat-label">Found</span></div>
+  <div class="stat stat-resolved"><span class="stat-value" id="stat-resolved">{{ stats.resolved }}</span><span class="stat-label">Resolved</span></div>
+</section>
+
+<form class="filters" method="get" action="{{ url_for('index') }}" role="search">
+  <div class="filter-search">
+    <label for="q" class="sr-only">Search</label>
+    <input class="input" id="q" type="search" name="q" placeholder="Search title, description or location…" value="{{ filters.q }}">
+    <button type="submit" class="btn btn-primary">Search</button>
+    <button type="button" class="btn btn-ghost filter-toggle" aria-controls="filter-panel" aria-expanded="{{ 'true' if filtered else 'false' }}">Filters</button>
+  </div>
+  <div id="filter-panel" class="filter-panel {% if filtered %}open{% endif %}">
+    <select class="input auto-submit" name="category" aria-label="Category">
+      <option value="">All categories</option>
+      {% for c in CATEGORIES %}<option value="{{ c }}" {% if filters.category == c %}selected{% endif %}>{{ c|capitalize }}</option>{% endfor %}
+    </select>
+    <select class="input auto-submit" name="type" aria-label="Type">
+      <option value="">Lost &amp; found</option>
+      {% for t in ITEM_TYPES %}<option value="{{ t }}" {% if filters.type == t %}selected{% endif %}>{{ t|capitalize }}</option>{% endfor %}
+    </select>
+    <select class="input auto-submit" name="status" aria-label="Status">
+      <option value="">Any status</option>
+      {% for s in STATUSES %}<option value="{{ s }}" {% if filters.status == s %}selected{% endif %}>{{ s|capitalize }}</option>{% endfor %}
+    </select>
+    {% if filtered %}<a href="{{ url_for('index') }}" class="btn btn-ghost">Clear</a>{% endif %}
+  </div>
+</form>
+
+{% if filtered %}
+<p class="result-count">{{ result_count }} result{{ '' if result_count == 1 else 's' }} found</p>
+{% endif %}
+
+{% if items %}
+<section class="grid">
+  {% for item in items %}
+  <article class="card">
+    <a href="{{ url_for('item_detail', item_id=item.id) }}" class="card-link" aria-label="View {{ item.title }}"></a>
+    <div class="card-media card-media-{{ item.category }}">
+      {% if item.image_url %}<img src="{{ item.image_url }}" alt="" loading="lazy" referrerpolicy="no-referrer">{% else %}<span class="card-initial">{{ item.category[0]|upper }}</span>{% endif %}
+    </div>
+    <div class="card-body">
+      <div class="badges">{{ badge(item.item_type) }}{{ badge(item.status) }}</div>
+      <h2 class="card-title">{{ item.title }}</h2>
+      <p class="card-text">{{ item.description|truncate(110) }}</p>
+      <div class="card-meta">
+        <span>{{ item.location }}</span>
+        <span>{{ item.item_date }}</span>
+      </div>
+    </div>
+  </article>
+  {% endfor %}
+</section>
+
+{% if pages > 1 %}
+<nav class="pagination" aria-label="Pagination">
+  {% set args = {'q': filters.q, 'category': filters.category, 'type': filters.type, 'status': filters.status} %}
+  {% if page > 1 %}<a class="btn btn-ghost" href="{{ url_for('index', page=page-1, **args) }}">&larr; Previous</a>{% endif %}
+  <span>Page {{ page }} of {{ pages }}</span>
+  {% if page < pages %}<a class="btn btn-ghost" href="{{ url_for('index', page=page+1, **args) }}">Next &rarr;</a>{% endif %}
+</nav>
+{% endif %}
+
+{% else %}
+<section class="empty-state">
+  <svg viewBox="0 0 120 120" width="96" height="96" aria-hidden="true"><circle cx="52" cy="52" r="30" fill="none" stroke="currentColor" stroke-width="6"/><path d="M74 74l26 26" stroke="currentColor" stroke-width="8" stroke-linecap="round"/><path d="M42 52h20" stroke="currentColor" stroke-width="5" stroke-linecap="round"/></svg>
+  {% if filtered %}
+    <h2>No matching items</h2>
+    <p>Try a different keyword or clear your filters.</p>
+    <a href="{{ url_for('index') }}" class="btn btn-ghost">Clear filters</a>
+  {% else %}
+    <h2>No items reported yet</h2>
+    <p>The board is empty. Be the first to report a lost or found item.</p>
+    <a href="{{ url_for('new_item') }}" class="btn btn-primary">Report an item</a>
+  {% endif %}
+</section>
+{% endif %}
+{% endblock %}
